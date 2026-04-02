@@ -8,6 +8,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.example.mycamera.callback.TackPhotoCallback
+import com.example.mycamera.utils.LogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -122,7 +123,7 @@ class CameraRepository(private val context: Context) {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
             .format(Date())
         val storageDir = context.getExternalFilesDir("Pictures")
-
+        LogUtil.d(TAG, "createPhotoFile storageDir = ${storageDir}")
         return File.createTempFile(
             "JPEG_${timeStamp}_",
             ".jpg",
