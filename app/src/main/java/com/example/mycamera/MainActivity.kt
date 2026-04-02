@@ -1,7 +1,6 @@
 package com.example.mycamera
 
 import android.Manifest
-import android.R.attr.duration
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
@@ -20,7 +19,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.view.PreviewView
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
@@ -120,7 +118,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun capturePhoto() {
         lifecycleScope.launch {
-            val photoFile = cameraRepository.takePhoto()
+            val photoFile = cameraRepository.takePhoto(null)
             if (photoFile != null) {
                 // 显示拍照成功动画
                 showCaptureAnimation()

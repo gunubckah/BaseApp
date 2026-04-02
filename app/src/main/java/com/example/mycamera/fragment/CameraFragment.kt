@@ -11,6 +11,9 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,9 +27,11 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.mycamera.R
+import com.example.mycamera.callback.TackPhotoCallback
 import com.example.mycamera.data.CameraRepository
 import com.example.mycamera.databinding.FragmentCameraBinding
 import com.example.mycamera.presentation.CameraFragmentDirections
+import com.example.mycamera.utils.LogUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,10 +41,23 @@ import java.io.IOException
 
 class CameraFragment : Fragment() {
 
+    private val TAG = "CameraFragment"
     private var _binding: FragmentCameraBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var cameraRepository: CameraRepository
+
+    private val mHandle = Handler(Looper.getMainLooper()){msg ->
+        when(msg.what){
+            UPDATE_PREVIEW_PHOTO -> {
+                updateLastPhotoPreview(msg.obj as File)
+                true
+            }
+            else -> {
+                false
+            }
+        }
+    }
     private val requiredPermissions = arrayOf(
         android.Manifest.permission.CAMERA
     )
@@ -134,24 +152,28 @@ class CameraFragment : Fragment() {
 
     private fun capturePhoto() {
         CoroutineScope(Dispatchers.IO).launch {
-            val photoFile = cameraRepository.takePhoto()
+            val photoFile = cameraRepository.takePhoto(object : TackPhotoCallback{
+                override fun onSuccess(path: String) {
+                    val updateMsg = Message.obtain(mHandle, UPDATE_PREVIEW_PHOTO)
+                    updateMsg.obj = File(path)
+                    mHandle.sendMessage(updateMsg)
+                }
+
+                override fun onFailed() {
+                    LogUtil.e(TAG, "takePhoto save photo failed")
+                }
+            })
             if (photoFile != null) {
                 // 显示拍照成功动画
                 withContext(Dispatchers.Main) {
                     showCaptureAnimation()
                     // 更新预览图
-                    updateLastPhotoPreview(photoFile)
+
                     Toast.makeText(
                         requireContext(),
                         "照片已保存",
                         Toast.LENGTH_SHORT
                     ).show()
-
-                    // 导航到预览页面
-                    val action = CameraFragmentDirections.actionCameraFragmentToPreviewFragment(
-                        photoPath = photoFile.absolutePath
-                    )
-                    findNavController().navigate(action)
                 }
             }
         }
@@ -226,6 +248,7 @@ class CameraFragment : Fragment() {
 
                         // 设置点击事件
                         binding.ivLastPhoto.setOnClickListener {
+                            LogUtil.d(TAG, "ivLastPhoto has clicked")
                             // 导航到预览页面
                             val action = CameraFragmentDirections
                                 .actionCameraFragmentToPreviewFragment(
@@ -323,5 +346,9 @@ class CameraFragment : Fragment() {
         super.onDestroyView()
         cameraRepository.cleanup()
         _binding = null
+    }
+
+    companion object{
+        private const val UPDATE_PREVIEW_PHOTO = 1001
     }
 }

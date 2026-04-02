@@ -7,6 +7,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.example.mycamera.callback.TackPhotoCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -14,8 +15,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import javax.security.auth.callback.Callback
 
 class CameraRepository(private val context: Context) {
+
+    private val TAG = "CameraRepository"
 
     enum class FlashMode { OFF, ON, AUTO }
 
@@ -52,11 +56,11 @@ class CameraRepository(private val context: Context) {
                 imageCapture
             )
         } catch (e: Exception) {
-            Log.e("CameraRepository", "相机绑定失败", e)
+            Log.e(TAG, "相机绑定失败", e)
         }
     }
 
-    suspend fun takePhoto(): File? = withContext(Dispatchers.IO) {
+    suspend fun takePhoto(callback: TackPhotoCallback?): File? = withContext(Dispatchers.IO) {
         val imageCapture = imageCapture ?: return@withContext null
 
         val photoFile = createPhotoFile()
@@ -68,11 +72,13 @@ class CameraRepository(private val context: Context) {
             ContextCompat.getMainExecutor(context),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    Log.d("CameraRepository", "照片保存成功: ${photoFile.absolutePath}")
+                    Log.d(TAG, "照片保存成功: ${photoFile.absolutePath}")
+                    callback?.onSuccess(photoFile.absolutePath)
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    Log.e("CameraRepository", "拍照失败", exception)
+                    Log.e(TAG, "拍照失败", exception)
+                    callback?.onFailed()
                 }
             }
         )
