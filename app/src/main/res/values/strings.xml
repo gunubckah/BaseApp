@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">基础相机</string>
+    <string name="take_photo">拍照</string>
+    <string name="switch_camera">切换摄像头</string>
+    <string name="flash">闪光灯</string>
+    <string name="mode">模式</string>
+    <string name="camera_permission_required">需要相机权限才能使用拍照功能</string>
+    <string name="photo_saved">照片已保存</string>
+    <string name="camera_error">相机启动失败</string>
+
+    <string name="photo_preview">照片预览</string>
+    <string name="share">分享</string>
+    <string name="delete">删除</string>
+    <string name="close">关闭</string>
+</resources>

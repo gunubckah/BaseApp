@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFF">
+
+    <!-- 十字线 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,5v14M5,12h14" />
+
+    <!-- 圆形边框 - 注意：cx、cy、r 属性不加 android: 前缀 -->
+    <circle
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:fillColor="#00FFFFFF"
+        cx="12"
+        cy="12"
+        r="8" />
+
+</vector>
